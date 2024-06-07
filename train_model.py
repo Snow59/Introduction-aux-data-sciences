@@ -1,35 +1,41 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-import joblib  # Si nécessaire pour sauvegarder les jeux
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
-def load_processed_data(filepath):
-    """Charge les données prétraitées depuis un fichier CSV."""
+def load_data(filepath):
+    """Charge les données depuis un fichier CSV."""
     return pd.read_csv(filepath)
 
 def split_data(df, target_column, test_size=0.2, random_state=42):
     """Divise les données en ensembles d'apprentissage et de test."""
     X = df.drop(target_column, axis=1)
     y = df[target_column]
-    X_train, X_test, y_train, y_test = train_test_test_split(X, y, test_size=test_size, random_state=random_state)
-    return X_train, X_test, y_train, y_test
+    return train_test_split(X, y, test_size=test_size, random_state=random_state)
 
-def save_data(X_train, X_test, y_train, y_test):
-    """Optionnel: sauvegarde les jeux divisés en fichiers pour une utilisation ultérieure."""
-    X_train.to_csv('X_train.csv', index=False)
-    X_test.to_csv('X_test.csv', index=False)
-    y_train.to_csv('y_train.csv', index=False)
-    y_test.to_csv('y_test.csv', index=False)
+def train_logistic_regression(X_train, y_train):
+    """Entraîne un modèle de régression logistique sur les données d'apprentissage."""
+    model = LogisticRegression(max_iter=1000)  # Augmentation du nombre d'itérations si nécessaire
+    model.fit(X_train, y_train)
+    return model
+
+def evaluate_model(model, X_test, y_test):
+    """Évalue le modèle sur le jeu de test et affiche les résultats."""
+    predictions = model.predict(X_test)
+    print("Accuracy:", accuracy_score(y_test, predictions))
+    print("Confusion Matrix:\n", confusion_matrix(y_test, predictions))
+    print("Classification Report:\n", classification_report(y_test, predictions))
 
 if __name__ == "__main__":
-    data = load_processed_data('path/to/your/processed_data.csv')
-    X_train, X_test, y_train, y_hair = split_data(data, 'target_column_name')  # Remplace 'target_column_name' par le nom de ta colonne cible
-    
-    # Affiche des informations sur les jeux d'apprentissage et de test
-    print(f"Total dataset size: {data.shape[0]} samples")
-    print(f"Training set size: {X_train.shape[0]} samples")
-    print(f"Test set size: {X_test.shape[0]} samples")
-    print(f"Proportion of training set: {100 * X_train.shape[0] / data.shape[0]:.2f}%")
-    print(f"Proportion of test set: {100 * X_test.shape[0] / data.shape[0]:.2f}%")
-    
-    # Optionnel: Sauvegarde des jeux
-    save_data(X_train, X_test, y_train, y_test)
+    # Chargement des données
+    data_path = 'path/to/your/processed_data.csv'
+    data = load_data(data_path)
+
+    # Séparation des données
+    X_train, X_test, y_train, y_test = split_data(data, 'target_column_name')  # Remplacez 'target_column_name'
+
+    # Entraînement du modèle de régression logistique
+    logistic_model = train_logistic_regression(X_train, y_train)
+
+    # Évaluation du modèle
+    evaluate_model(logistic_model, X_test, y_test)
