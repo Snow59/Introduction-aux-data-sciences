@@ -52,7 +52,7 @@ if __name__ == "__main__":
     data = load_data(data_path)
 
     # Séparation des données
-    target_column_index = 2  # Remplacez par l'index réel de la colonne cible
+    target_column_index = 2  
     X_train, X_test, y_train, y_test = split_data(data, target_column_index)
 
     # Entraînement du modèle de régression logistique
