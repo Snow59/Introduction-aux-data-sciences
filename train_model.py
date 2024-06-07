@@ -1,51 +1,35 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
-import joblib
+import joblib  # Si nécessaire pour sauvegarder les jeux
 
-def load_data(filepath):
-    """Charge les données à partir du fichier CSV spécifié."""
+def load_processed_data(filepath):
+    """Charge les données prétraitées depuis un fichier CSV."""
     return pd.read_csv(filepath)
 
-def split_data(df, target_column):
-    """Sépare les données en features et target, puis en ensembles d'entraînement et de test."""
+def split_data(df, target_column, test_size=0.2, random_state=42):
+    """Divise les données en ensembles d'apprentissage et de test."""
     X = df.drop(target_column, axis=1)
     y = df[target_column]
-    return train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_test_split(X, y, test_size=test_size, random_state=random_state)
+    return X_train, X_test, y_train, y_test
 
-def train_model(X_train, y_train):
-    """Entraîne un modèle RandomForest avec les données fournies."""
-    model = RandomForestClassifier(n_estimators=100, random_type=42)
-    model.fit(X_train, y_train)
-    return model
-
-def save_model(model, filename):
-    """Sauvegarde le modèle entraîné dans un fichier joblib."""
-    joblib.dump(model, filename)
-
-def load_model(filename):
-    """Charge un modèle depuis un fichier joblib."""
-    return joblib.load(filename)
+def save_data(X_train, X_test, y_train, y_test):
+    """Optionnel: sauvegarde les jeux divisés en fichiers pour une utilisation ultérieure."""
+    X_train.to_csv('X_train.csv', index=False)
+    X_test.to_csv('X_test.csv', index=False)
+    y_train.to_csv('y_train.csv', index=False)
+    y_test.to_csv('y_test.csv', index=False)
 
 if __name__ == "__main__":
-    # Chargement des données
-    data = load_data('processed_car_insurance.csv')
-
-    # Séparation des données
-    X_train, X_test, y_train, y_test = split_data(data, 'target_column_name')
-
-    # Entraînement du modèle
-    model = train_model(X_train, y_train)
-
-    # Évaluation du modèle
-    predictions = model.predict(X_test)
-    print(f'Accuracy: {accuracy_score(y_test, predictions)}')
-
-    # Sauvegarde du modèle
-    save_model(model, 'final_model.joblib')
-
-    # Chargement et vérification du modèle
-    loaded_model = load_model('final_model.joblib')
-    reloaded_predictions = loaded_model.predict(X_test)
-    print(f'Reloaded Model Accuracy: {accuracy_profile(y_test, reloaded_predictions)}')
+    data = load_processed_data('path/to/your/processed_data.csv')
+    X_train, X_test, y_train, y_hair = split_data(data, 'target_column_name')  # Remplace 'target_column_name' par le nom de ta colonne cible
+    
+    # Affiche des informations sur les jeux d'apprentissage et de test
+    print(f"Total dataset size: {data.shape[0]} samples")
+    print(f"Training set size: {X_train.shape[0]} samples")
+    print(f"Test set size: {X_test.shape[0]} samples")
+    print(f"Proportion of training set: {100 * X_train.shape[0] / data.shape[0]:.2f}%")
+    print(f"Proportion of test set: {100 * X_test.shape[0] / data.shape[0]:.2f}%")
+    
+    # Optionnel: Sauvegarde des jeux
+    save_data(X_train, X_test, y_train, y_test)
