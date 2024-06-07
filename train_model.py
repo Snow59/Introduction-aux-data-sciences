@@ -2,29 +2,32 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+import joblib
 
 def load_data(filepath):
-    """Charge les données depuis un fichier CSV."""
-    return pd.read_csv(filepath)
+    return pd.read_csv(filepath, header=None)  # Charger sans en-têtes
 
-def split_data(df, target_column, test_size=0.2, random_state=42):
-    """Divise les données en ensembles d'apprentissage et de test."""
-    X = df.drop(target_column, axis=1)
-    y = df[target_column]
+def check_and_discretize_target(y):
+    # Vérifier le type de valeurs dans la colonne cible
+    if y.dtype.kind in 'fc':  # f: float, c: complex
+        print("Les valeurs de la colonne cible sont continues. Conversion en classes discrètes...")
+        # Discrétiser les valeurs continues en classes discrètes en gérant les duplications
+        y = pd.qcut(y.rank(method='first'), q=2, labels=[0, 1], duplicates='drop')
+    return y
+
+def split_data(df, target_column_index, test_size=0.2, random_state=42):
+    X = df.drop(target_column_index, axis=1)
+    y = df[target_column_index]
+    y = check_and_discretize_target(y)
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
 
 def train_logistic_regression(X_train, y_train):
-    """Entraîne un modèle de régression logistique sur les données d'apprentissage."""
-    model = LogisticRegression(max_iter=1000)  # Augmentation du nombre d'itérations si nécessaire
+    model = LogisticRegression(max_iter=1000)
     model.fit(X_train, y_train)
     return model
 
-def evaluate_model(model, X_test, y_test):
-    """Évalue le modèle sur le jeu de test et affiche les résultats."""
-    predictions = model.predict(X_test)
-    print("Accuracy:", accuracy_score(y_test, predictions))
-    print("Confusion Matrix:\n", confusion_matrix(y_test, predictions))
-    print("Classification Report:\n", classification_report(y_test, predictions))
+def save_model(model, filename):
+    joblib.dump(model, filename)
 
 if __name__ == "__main__":
     # Chargement des données
@@ -32,7 +35,17 @@ if __name__ == "__main__":
     data = load_data(data_path)
 
     # Séparation des données
-    X_train, X_test, y_train, y_test = split_data(data, 'target_column_name')  # Remplacez 'target_column_name'
+    target_column_index = 2  # Remplacez par l'index réel de la colonne cible
+    X_train, X_test, y_train, y_test = split_data(data, target_column_index)
 
     # Entraînement du modèle de régression logistique
     logistic_model = train_logistic_regression(X_train, y_train)
+
+    # Évaluation du modèle
+    predictions = logistic_model.predict(X_test)
+    print("Accuracy:", accuracy_score(y_test, predictions))
+    print("Confusion Matrix:\n", confusion_matrix(y_test, predictions))
+    print("Classification Report:\n", classification_report(y_test, predictions))
+
+    # Sauvegarde du modèle
+    save_model(logistic_model, 'final_model.joblib')
