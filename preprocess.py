@@ -60,9 +60,9 @@ def save_processed_data(df, filename):
     df.to_csv(filename, index=False)
 
 if __name__ == "__main__":
-    data = load_data('path/to/your/data.csv')
+    data = load_data('car_insurance.csv')
     processed_data = preprocess_data(data)
-    save_processed_data(processed_data, 'path/to/your/processed_data.csv')
+    save_processed_data(processed_data, 'processed_car_insurance.csv')
 
     # Analyse des corrélations
     features_to_visualize = analyze_correlations(processed_data)
