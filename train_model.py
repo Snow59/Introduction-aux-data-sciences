@@ -36,6 +36,3 @@ if __name__ == "__main__":
 
     # Entraînement du modèle de régression logistique
     logistic_model = train_logistic_regression(X_train, y_train)
-
-    # Évaluation du modèle
-    evaluate_model(logistic_model, X_test, y_test)
