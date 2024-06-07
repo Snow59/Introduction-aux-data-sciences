@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV, KFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import joblib
@@ -22,9 +22,26 @@ def split_data(df, target_column_index, test_size=0.2, random_state=42):
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
 
 def train_logistic_regression(X_train, y_train):
-    model = LogisticRegression(max_iter=1000)
-    model.fit(X_train, y_train)
-    return model
+    # Paramètres pour la recherche de grille
+    param_grid = {
+        'C': [0.1, 1, 10, 100],
+        'solver': ['lbfgs', 'liblinear'],
+        'max_iter': [200, 300, 500]
+    }
+
+    # Initialiser le modèle de régression logistique
+    log_reg = LogisticRegression()
+
+    # Initialiser GridSearchCV avec validation croisée
+    grid_search = GridSearchCV(log_reg, param_grid, cv=5, scoring='accuracy', n_jobs=-1)
+
+    # Entraîner le modèle avec la recherche de grille
+    grid_search.fit(X_train, y_train)
+
+    print(f"Best Parameters: {grid_search.best_params_}")
+
+    # Retourner le meilleur modèle trouvé
+    return grid_search.best_estimator_
 
 def save_model(model, filename):
     joblib.dump(model, filename)
