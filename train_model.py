@@ -28,7 +28,7 @@ def evaluate_model(model, X_test, y_test):
 
 if __name__ == "__main__":
     # Chargement des données
-    data_path = 'path/to/your/processed_data.csv'
+    data_path = 'processed_car_insurance.csv'
     data = load_data(data_path)
 
     # Séparation des données
