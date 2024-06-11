@@ -28,12 +28,13 @@ def label_encode(column):
 def preprocess_data(df):
     # Séparer les variables en numériques et catégorielles
     numerical_cols = df.select_dtypes(include=['int64', 'float64']).columns.tolist()
-    categorical_cols = df.select_dtypes(include=['object']).columns.tolist()
-    driving_exp = categorical_cols["driving_experience"]
-    education = categorical_cols["education"]
-    income = categorical_cols["income"]
-    vehicle_year = categorical_cols["vehicle_year"]
-    vehicle_type = categorical_cols["vehicle_type"]
+   # categorical_cols = df.select_dtypes(include=['object']).columns.tolist()
+
+    driving_exp = df["driving_experience"]
+    education = df["education"]
+    income = df["income"]
+    vehicle_year = df["vehicle_year"]
+    vehicle_type = df["vehicle_type"]
 
 
     # Pipeline pour les variables numériques
@@ -48,13 +49,6 @@ def preprocess_data(df):
     #     ('encoder', OneHotEncoder(handle_unknown='ignore'))  # Encodage One-Hot
     # ])
 
-    label_encode(driving_exp)
-    label_encode(education)
-    label_encode(income)
-    label_encode(vehicle_year)
-    label_encode(vehicle_type)
-
-
     # Préprocesseur
     preprocessor = ColumnTransformer(
         transformers=[
@@ -64,7 +58,11 @@ def preprocess_data(df):
 
     # Préparation des données
     df_processed = preprocessor.fit_transform(df)
-    label_encoder = df_processed.LabelEncoder() 
+    label_encode(driving_exp)
+    label_encode(education)
+    label_encode(income)
+    label_encode(vehicle_year)
+    label_encode(vehicle_type)
     return pd.DataFrame(df_processed)
 
 def save_processed_data(df, filename):
