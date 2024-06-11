@@ -52,6 +52,7 @@ if __name__ == "__main__":
     data = load_data(data_path)
 
     # Séparation des données
+    # Id de la colonne outcome 
     target_column_index = 2  
     X_train, X_test, y_train, y_test = split_data(data, target_column_index)
 

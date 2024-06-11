@@ -27,42 +27,32 @@ def label_encode(column):
 
 def preprocess_data(df):
     # Séparer les variables en numériques et catégorielles
-    numerical_cols = df.select_dtypes(include=['int64', 'float64']).columns.tolist()
-   # categorical_cols = df.select_dtypes(include=['object']).columns.tolist()
-
+    #numerical_cols = df.select_dtypes(include=['int64', 'float64']).columns.tolist()
     driving_exp = df["driving_experience"]
     education = df["education"]
     income = df["income"]
     vehicle_year = df["vehicle_year"]
     vehicle_type = df["vehicle_type"]
 
+    label_encode(driving_exp)
+    label_encode(education)
+    label_encode(income)
+    label_encode(vehicle_year)
+    label_encode(vehicle_type)
 
     # Pipeline pour les variables numériques
     numeric_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='median')),  # Imputation par la médiane
         ('scaler', StandardScaler())  # Normalisation des données
     ])
-
-    # # Pipeline pour les variables catégorielles
-    # categorical_transformer = Pipeline(steps=[
-    #     ('imputer', SimpleImputer(strategy='most_frequent')),  # Imputation par le mode
-    #     ('encoder', OneHotEncoder(handle_unknown='ignore'))  # Encodage One-Hot
-    # ])
-
-    # Préprocesseur
+    
     preprocessor = ColumnTransformer(
         transformers=[
-            ('num', numeric_transformer, numerical_cols),
-           # ('cat', categorical_transformer, categorical_cols)
+            ('num', numeric_transformer, df)
         ])
 
     # Préparation des données
     df_processed = preprocessor.fit_transform(df)
-    label_encode(driving_exp)
-    label_encode(education)
-    label_encode(income)
-    label_encode(vehicle_year)
-    label_encode(vehicle_type)
     return pd.DataFrame(df_processed)
 
 def save_processed_data(df, filename):
