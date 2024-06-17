@@ -5,20 +5,12 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 import joblib
 
 def load_data(filepath):
-    return pd.read_csv(filepath, header=None)  # Charger sans en-têtes
+    return pd.read_csv(filepath)  # Charger sans en-têtes
 
-def check_and_discretize_target(y):
-    # Vérifier le type de valeurs dans la colonne cible
-    if y.dtype.kind in 'fc':  # f: float, c: complex
-        print("Les valeurs de la colonne cible sont continues. Conversion en classes discrètes...")
-        # Discrétiser les valeurs continues en classes discrètes en gérant les duplications
-        y = pd.qcut(y.rank(method='first'), q=2, labels=[0, 1], duplicates='drop')
-    return y
 
 def split_data(df, target_column_index, test_size=0.2, random_state=42):
     X = df.drop(target_column_index, axis=1)
     y = df[target_column_index]
-    y = check_and_discretize_target(y)
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
 
 def train_logistic_regression(X_train, y_train):
@@ -52,8 +44,9 @@ if __name__ == "__main__":
     data = load_data(data_path)
 
     # Séparation des données
-    target_column_index = 2  
-    X_train, X_test, y_train, y_test = split_data(data, target_column_index)
+
+
+    X_train, X_test, y_train, y_test = split_data(data, 'outcome')
 
     # Entraînement du modèle de régression logistique
     logistic_model = train_logistic_regression(X_train, y_train)

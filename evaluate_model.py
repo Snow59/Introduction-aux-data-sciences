@@ -12,14 +12,8 @@ def load_data(filepath):
 def load_model(model_path):
     return joblib.load(model_path)
 
-def check_and_discretize_target(y):
-    if y.dtype.kind in 'fc':
-        print("Les valeurs de la colonne cible sont continues. Conversion en classes discrètes...")
-        y = pd.qcut(y.rank(method='first'), q=2, labels=[0, 1], duplicates='drop')
-    return y
 
 def evaluate_model(model, X_test, y_test):
-    y_test = check_and_discretize_target(y_test)
     predictions = model.predict(X_test)
     acc = accuracy_score(y_test, predictions)
     cm = confusion_matrix(y_test, predictions)
@@ -39,7 +33,6 @@ def evaluate_model(model, X_test, y_test):
         print(f"True class: {true}, Predicted class: {pred}")
 
 def perform_cross_validation(model, X, y):
-    y = check_and_discretize_target(y)
     cross_validator = KFold(n_splits=5, shuffle=True, random_state=42)
     acc_scores = cross_val_score(model, X, y, cv=cross_validator, scoring='accuracy')
     print("Cross-Validation Scores:", acc_scores)
@@ -66,25 +59,23 @@ if __name__ == "__main__":
     model_path = 'final_model.joblib'
 
     # Chargement des données de test
-    test_data = load_data(test_data_path)
+    test_data =   pd.read_csv(test_data_path)
 
     # Afficher les colonnes disponibles pour vérifier le nom de la colonne cible
     print("Colonnes disponibles dans les données :")
     print(test_data.columns.tolist())
 
     # Index correct de la colonne cible
-    target_column_index = 2  # Remplacez par l'index réel de la colonne cible après vérification
+    target_column_index = test_data.shape[1]-1  # Remplacez par l'index réel de la colonne cible après vérification
 
     # Assurez-vous que l'index de la colonne cible est correct
     if target_column_index >= len(test_data.columns):
         raise IndexError(f"L'index de la colonne cible '{target_column_index}' n'existe pas dans les données.")
 
     target_column = test_data.columns[target_column_index]
-    X_test = test_data.drop(target_column, axis=1)
-    y_test = test_data[target_column]
+    X_test = test_data.drop('outcome', axis=1)
+    y_test = test_data['outcome']
 
-    # Vérifier et convertir y_test en valeurs catégorielles si nécessaire
-    y_test = check_and_discretize_target(y_test)
 
     # Chargement du modèle
     model = load_model(model_path)

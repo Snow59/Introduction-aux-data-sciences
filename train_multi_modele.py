@@ -9,20 +9,6 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import joblib
 
-def load_data(filepath):
-    return pd.read_csv(filepath, header=None)  # Charger sans en-têtes
-
-def check_and_discretize_target(y):
-    if y.dtype.kind in 'fc':  # f: float, c: complex
-        print("Les valeurs de la colonne cible sont continues. Conversion en classes discrètes...")
-        y = pd.qcut(y.rank(method='first'), q=2, labels=[0, 1], duplicates='drop')
-    return y
-
-def split_data(df, target_column_index, test_size=0.2, random_state=42):
-    X = df.drop(target_column_index, axis=1)
-    y = df[target_column_index]
-    y = check_and_discretize_target(y)
-    return train_test_split(X, y, test_size=test_size, random_state=random_state)
 
 def train_best_model(X_train, y_train):
     models = {
@@ -55,13 +41,19 @@ def train_best_model(X_train, y_train):
 def save_model(model, filename):
     joblib.dump(model, filename)
 
+def split_data(df, test_size=0.2, random_state=42):
+    X = df.drop('outcome', axis=1)
+    y = df['outcome']
+    return train_test_split(X, y, test_size=test_size, random_state=random_state)
+
 if __name__ == "__main__":
     # Chargement des données
     data_path = 'processed_car_insurance.csv'
-    data = load_data(data_path)
+    data = pd.read_csv(data_path)
+
 
     # Séparation des données
-    target_column_index = 2  # Remplacez par l'index réel de la colonne cible
+    target_column_index = data.shape[1]-1 # Remplacez par l'index réel de la colonne cible
     X_train, X_test, y_train, y_test = split_data(data, target_column_index)
 
     # Entraînement des modèles et sélection du meilleur modèle
